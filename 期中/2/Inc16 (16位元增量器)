@@ -1,0 +1,10 @@
+CHIP Inc16 {
+    IN in[16];
+    OUT out[16];
+
+    PARTS:
+    // b[0]=true makes the value 1. Unspecified pins default to false (0).
+    Add16(a=in, b[0]=true, out=out);
+}
+//將輸入數值加 1
+//直接使用剛做好的 Add16，將 a 設為輸入 in，b 設為 1 (在 HDL 中表示為 b[0]=true, b[1..15]=false，或者簡寫利用 default false 特性)
