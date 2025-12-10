@@ -1,0 +1,49 @@
+CHIP ALU {
+    IN  
+        x[16], y[16],  // 16-bit inputs        
+        zx, // zero the x input?
+        nx, // negate the x input?
+        zy, // zero the y input?
+        ny, // negate the y input?
+        f,  // compute out = x + y (if 1) or x & y (if 0)
+        no; // negate the out output?
+
+    OUT 
+        out[16], // 16-bit output
+        zr, // 1 if (out == 0), 0 otherwise
+        ng; // 1 if (out < 0),  0 otherwise
+
+    PARTS:
+   // --- 1. Handling x input (zx, nx) ---
+   Mux16(a=x, b=false, sel=zx, out=x1);       // zx: Zero x
+   Not16(in=x1, out=notx1);
+   Mux16(a=x1, b=notx1, sel=nx, out=x2);      // nx: Negate x
+
+   // --- 2. Handling y input (zy, ny) ---
+   Mux16(a=y, b=false, sel=zy, out=y1);       // zy: Zero y
+   Not16(in=y1, out=noty1);
+   Mux16(a=y1, b=noty1, sel=ny, out=y2);      // ny: Negate y
+
+   // --- 3. Function calculation (f) ---
+   Add16(a=x2, b=y2, out=addXY);              // Add
+   And16(a=x2, b=y2, out=andXY);              // And
+   Mux16(a=andXY, b=addXY, sel=f, out=fOut);  // Select Function
+
+   // --- 4. Post-processing output (no) and handling flags ---
+   Not16(in=fOut, out=notFOut);
+   
+   // We need to split the output pin to calculate zr and ng
+   Mux16(a=fOut, b=notFOut, sel=no, out=out, out[0..7]=low8, out[8..15]=high8, out[15]=ng);
+
+   // --- 5. Calculate zr flag ---
+   // If any bit is 1, then out != 0. 
+   Or8Way(in=low8, out=orLow);
+   Or8Way(in=high8, out=orHigh);
+   Or(a=orLow, b=orHigh, out=anyBitOne);
+   Not(in=anyBitOne, out=zr);
+}
+//根據控制位元 (zx, nx, zy, ny, f, no) 依序處理資料
+//預處理 (Pre-setting) X 和 Y： 使用 Mux16 選擇原值或 0 (處理 zx/zy)，接著使用 Not16 算出反相值，再用 Mux16 選擇正相或反相 (處理 nx/ny)
+//計算函數 (Function)： 同時計算 Add16 和 And16，然後根據 f 位元用 Mux16 選一個
+//後處理 (Post-setting) 輸出： 根據 no 位元選擇是否反相
+//狀態旗標 (Flags)： ng (Negative): 直接取輸出的最高位元 (MSB, index 15)，zr (Zero): 檢查輸出是否全為 0。這需要將輸出的 16 個位元拆開 (例如拆成兩個 8-bit)，用 Or8Way 檢查是否有任何一個 bit 是 1，最後用 Not 反轉結果
