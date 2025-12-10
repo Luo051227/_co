@@ -1,0 +1,15 @@
+CHIP FullAdder {
+    IN a, b, c;  // 1-bit inputs
+    OUT sum,     // Right bit of a + b + c
+        carry;   // Left bit of a + b + c
+
+    PARTS:
+    HalfAdder(a=a, b=b, sum=abSum, carry=abCarry);
+    HalfAdder(a=abSum, b=c, sum=sum, carry=bcCarry);
+    Or(a=abCarry, b=bcCarry, out=carry);
+}
+//負責三個位元的加法（包含前一位的進位）
+//使用兩個半加器 (HalfAdder) 串接
+//第一個半加器處理 a + b
+//第二個半加器將結果加上 c
+//如果任一半加器產生進位，最終結果就要進位 (使用 Or)
