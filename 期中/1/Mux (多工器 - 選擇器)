@@ -1,0 +1,16 @@
+CHIP Mux {
+    IN a, b, sel;
+    OUT out;
+
+    PARTS:
+    Not(in=sel, out=notSel);
+    And(a=a, b=notSel, out=aAndNotSel);
+    And(a=b, b=sel, out=bAndSel);
+    Or(a=aAndNotSel, b=bAndSel, out=out);
+}
+//像切換開關，有一個選擇訊號 sel
+//sel=0，讓 a 通過
+//sel=1，讓 b 通過
+//情況一 (選a)：a 是 1 且 sel 是 0 (也就是 Not(sel) 是 1)
+//情況二 (選b)：b 是 1 且 sel 是 1
+//公式： Or( And(a, Not(sel)), And(b, sel) )
