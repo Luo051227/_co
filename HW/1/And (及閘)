@@ -6,3 +6,6 @@ CHIP And {
     Nand(a=a, b=b, out=nandOut);
     Not(in=nandOut, out=out);
 }
+//兩個都是 1 才輸出 1; Not And (反的 And)
+//Nand 是反的 And，Nand 的後面再接一個 Not (負負得正)，就會變回 And 了
+//公式：Not(Nand(a, b))
