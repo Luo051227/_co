@@ -1,0 +1,15 @@
+CHIP DMux4Way {
+    IN in, sel[2];
+    OUT a, b, c, d;
+
+    PARTS:
+    DMux(in=in, sel=sel[1], a=top, b=bottom);
+    DMux(in=top, sel=sel[0], a=a, b=b);
+    DMux(in=bottom, sel=sel[0], a=c, b=d);
+}
+//「分流」
+//sel[1] (最高位)：它決定是去「上半部 (a,b)」還是「下半部 (c,d)」
+//用一個 DMux 把輸入訊號分成 Top 和 Bottom 兩股
+//sel[0] (最低位)
+//把 Top 訊號再用一個 DMux 分給 a 或 b
+//把 Bottom 訊號再用一個 DMux 分給 c 或 d
