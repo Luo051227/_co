@@ -1,0 +1,11 @@
+CHIP HalfAdder {
+    IN a, b;
+    OUT sum, carry;
+
+    PARTS:
+    Xor(a=a, b=b, out=sum);
+    And(a=a, b=b, out=carry);
+}
+//負責兩個位元的加法
+//sum (總和) 是輸入的 XOR (互斥或)
+//carry (進位) 是輸入的 AND (皆為 1 時才進位)
