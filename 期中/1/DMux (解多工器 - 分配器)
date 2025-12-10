@@ -1,0 +1,13 @@
+CHIP DMux {
+    IN in, sel;
+    OUT a, b;
+
+    PARTS:
+    Not(in=sel, out=notSel);
+    And(a=in, b=notSel, out=a);
+    And(a=in, b=sel, out=b);
+}
+//Mux 的反向，一個輸入 in，根據 sel 決定送到出口 a 還是出口 b
+//出口 a，in=1 且 sel=0
+//出口 b，in=1 且 sel=1
+//作法： 用兩個 And 閘分別算出 a 和 b 的輸出
