@@ -1,0 +1,13 @@
+CHIP Or {
+    IN a, b;
+    OUT out;
+
+    PARTS:
+    Not(in=a, out=notA);
+    Not(in=b, out=notB);
+    Nand(a=notA, b=notB, out=out);
+}
+//只要有一個是 1，就輸出 1
+//「Or (有1就是1)」的相反情況是「全部都是0」
+//兩個輸入都反相 (Not)，再送進 Nand，就會得到 Or 的結果
+//公式： Nand(Not(a), Not(b))
