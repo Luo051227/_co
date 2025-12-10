@@ -1,0 +1,17 @@
+CHIP Or8Way {
+    IN in[8];
+    OUT out;
+
+    PARTS:
+    Or(a=in[0], b=in[1], out=or1);
+    Or(a=in[2], b=in[3], out=or2);
+    Or(a=in[4], b=in[5], out=or3);
+    Or(a=in[6], b=in[7], out=or4);
+    Or(a=or1, b=or2, out=or12);
+    Or(a=or3, b=or4, out=or34);
+    Or(a=or12, b=or34, out=out);
+}
+//輸入 8 個 bit，只要其中任何一個是 1，結果就是 1
+//8 個輸入，兩兩 Or，剩下 4 個
+//4 個結果，兩兩 Or，剩下 2 個
+//最後 2 個 Or 在一起
