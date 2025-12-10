@@ -1,0 +1,13 @@
+CHIP Xor {
+    IN a, b;
+    OUT out;
+
+    PARTS:
+    Not(in=a, out=notA);
+    Not(in=b, out=notB);
+    And(a=a, b=notB, out=aAndNotB);
+    And(a=notA, b=b, out=notAAndB);
+    Or(a=aAndNotB, b=notAAndB, out=out);
+}
+//兩者不同時輸出 1 (例如 0,1 或 1,0)
+//公式： Or( And(a, Not(b)), And(Not(a), b) )
