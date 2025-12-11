@@ -25,13 +25,13 @@
   1,0,0,1,1  
   1,1,1,1,0  
 ## 2. 選擇與分配器 (Selectors & Distributors)
-* Mux (多工器)
-  多選一。它有兩個輸入數據 (a, b) 和一個選擇信號 (sel)
-  sel == 0，輸出 a，sel == 1，輸出 b  
-  ![licensed-image](https://github.com/user-attachments/assets/65084fb8-6b52-4879-aeb7-8964c0e65cdc)
-* DMux (解多工器)
-  一分多。它有一個輸入 (in) 和一個選擇信號 (sel)，輸出分為 a 和 b
-  sel == 0，原本的輸入傳送到 a（b 則為 0），sel == 1，原本的輸入傳送到 b（a 則為 0）  
+* Mux (多工器)  
+  多選一。它有兩個輸入數據 (a, b) 和一個選擇信號 (sel)  
+  sel == 0，輸出 a，sel == 1，輸出 b    
+  ![licensed-image](https://github.com/user-attachments/assets/65084fb8-6b52-4879-aeb7-8964c0e65cdc)  
+* DMux (解多工器)  
+  一分多。它有一個輸入 (in) 和一個選擇信號 (sel)，輸出分為 a 和 b  
+  sel == 0，原本的輸入傳送到 a（b 則為 0），sel == 1，原本的輸入傳送到 b（a 則為 0）    
 * 16-bit
   
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/1)  
