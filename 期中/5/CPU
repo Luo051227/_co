@@ -1,0 +1,84 @@
+CHIP CPU {
+
+    IN  inM[16],         // M value input  (M = contents of RAM[A])
+        instruction[16], // Instruction for execution
+        reset;           // Signals whether to re-start the current
+                         // program (reset==1) or continue executing
+                         // the current program (reset==0).
+
+    OUT outM[16],        // M value output
+        writeM,          // Write to M? 
+        addressM[15],    // Address in data memory (of M)
+        pc[15];          // address of next instruction
+
+    PARTS:
+    // --- 解碼邏輯 (Decoding Instruction) ---
+    // 判斷是 A 指令還是 C 指令
+    Not(in=instruction[15], out=isAInstruction);
+    Not(in=isAInstruction, out=isCInstruction);
+    
+    // --- A Register 控制 ---
+    // 如果是 A 指令，或者 C 指令且 dest 包含 A (instruction[5]=1)，則加載 A
+    And(a=isCInstruction, b=instruction[5], out=isCWriteA);
+    Or(a=isAInstruction, b=isCWriteA, out=loadA);
+    
+    // A Register 的輸入：如果是 A 指令，輸入為 instruction；如果是 C 指令，輸入為 ALU output
+    Mux16(a=instruction, b=aluOut, sel=isCInstruction, out=inA);
+    
+    ARegister(in=inA, load=loadA, out=outA, out[0..14]=addressM);
+
+    // --- ALU 輸入選擇 (A vs M) ---
+    // C 指令中的 'a' bit (instruction[12]) 決定 ALU 的 Y 輸入是 A 還是 M
+    And(a=isCInstruction, b=instruction[12], out=useM);
+    Mux16(a=outA, b=inM, sel=useM, out=aluY);
+
+    // --- D Register 控制 ---
+    // C 指令且 dest 包含 D (instruction[4]=1)
+    And(a=isCInstruction, b=instruction[4], out=loadD);
+    DRegister(in=aluOut, load=loadD, out=outD);
+
+    // --- ALU 計算 ---
+    // 控制位元來自 instruction[6..11] (c1..c6)
+    ALU(x=outD, y=aluY, 
+        zx=instruction[11], nx=instruction[10], 
+        zy=instruction[9],  ny=instruction[8], 
+        f=instruction[7],   no=instruction[6], 
+        out=aluOut, out=outM, 
+        zr=zr, ng=ng);
+
+    // --- WriteM 輸出 ---
+    // C 指令且 dest 包含 M (instruction[3]=1)
+    And(a=isCInstruction, b=instruction[3], out=writeM);
+
+    // --- PC (Program Counter) 與 Jump 邏輯 ---
+    // 判斷是否滿足跳轉條件 (j1, j2, j3 對應 instruction[2..0])
+    // zr (zero), ng (negative) 來自 ALU 輸出
+    
+    // 判斷結果是否為正數 (非零且非負)
+    Or(a=zr, b=ng, out=lteq0);
+    Not(in=lteq0, out=pos);
+    
+    // JGT (大於 0): j3=1 (instruction[0]) 且 pos=1
+    And(a=instruction[0], b=pos, out=jgt);
+    
+    // JEQ (等於 0): j2=1 (instruction[1]) 且 zr=1
+    And(a=instruction[1], b=zr, out=jeq);
+    
+    // JLT (小於 0): j1=1 (instruction[2]) 且 ng=1
+    And(a=instruction[2], b=ng, out=jlt);
+    
+    // 如果滿足任一跳轉條件
+    Or(a=jgt, b=jeq, out=jump1);
+    Or(a=jump1, b=jlt, out=jumpConditionMet);
+    
+    // 必須是 C 指令才能跳轉
+    And(a=isCInstruction, b=jumpConditionMet, out=doJump);
+    
+    PC(in=outA, load=doJump, inc=true, reset=reset, out[0..14]=pc);
+}
+//CPU 需要處理指令（A-Instruction 和 C-Instruction）、控制 ALU 計算、管理暫存器（A 和 D），並決定程式計數器（PC）的跳轉
+//instruction[15]: 0 代表 A指令，1 代表 C指令
+//instruction[5]: 決定是否寫入 A 暫存器 (d1)
+//instruction[4]: 決定是否寫入 D 暫存器 (d2)
+//instruction[3]: 決定是否寫入 Memory (d3 / writeM)
+//instruction[12]: 決定 ALU 的輸入是 A 還是 M (a-bit)
