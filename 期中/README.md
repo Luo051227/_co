@@ -68,10 +68,14 @@ Input A  Input B  And  Or  Xor
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/1)  
 [AI](https://gemini.google.com/share/18d05542899e)
 # 第二章
+[作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/2)
 [AI](https://gemini.google.com/share/e8517dddc71d)
 # 第三章
+[作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/3)
 [AI](https://gemini.google.com/share/343a93793658)
 # 第四章
+[作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/4)
 [AI](https://gemini.google.com/share/c1643e25113f)
 # 第五章
+[作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/5)
 [AI](https://gemini.google.com/share/d22f4a1e0077)
