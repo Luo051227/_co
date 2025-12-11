@@ -1,0 +1,19 @@
+CHIP RAM16K {
+    IN in[16], load, address[14];
+    OUT out[16];
+
+    PARTS:
+    // 只有 4 個 Bank
+    DMux4Way(in=load, sel=address[12..13], a=l0, b=l1, c=l2, d=l3);
+
+    RAM4K(in=in, load=l0, address=address[0..11], out=r0);
+    RAM4K(in=in, load=l1, address=address[0..11], out=r1);
+    RAM4K(in=in, load=l2, address=address[0..11], out=r2);
+    RAM4K(in=in, load=l3, address=address[0..11], out=r3);
+
+    Mux4Way16(a=r0, b=r1, c=r2, d=r3, sel=address[12..13], out=out);
+}
+//16K = 4 * 4K，所以使用 4Way 的 Mux/DMux
+//address[14] (總共14位)
+//address[12..13] (2 bits)：用 DMux4Way 和 Mux4Way16 來選擇 4 個 Bank 之一
+//address[0..11] (12 bits)：傳入內部的 RAM4K
