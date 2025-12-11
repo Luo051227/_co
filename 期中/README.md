@@ -65,9 +65,26 @@ Input A  Input B  And  Or  Xor
   將 1 個輸入信號分配到 8 個出口中的其中一個  
   需要 3 個位元的選擇信號  
   
-[作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/1)  
+[作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/1)
 [AI](https://gemini.google.com/share/18d05542899e)
 # 第二章
+* HalfAdder (半加器)
+  計算 a + b，輸入： a, b  
+  輸出：
+  `sum (總和)：當前位元的結果`
+  `carry (進位)：是否進位到下一位`
+  原理：
+  `1 + 0 = 1 (sum=1, carry=0)`
+  `1 + 1 = 10 (二進制的 2。sum=0, carry=1)`
+  組成：  
+  一個 Xor 閘 (算 sum) + 一個 And 閘 (算 carry)
+  缺點：  
+  它沒辦法處理「上一位傳過來的進位」，所以只能用在個位數相加。
+* FullAdder (全加器)
+* Add16
+* Inc16
+* ALU
+  
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/2)
 [AI](https://gemini.google.com/share/e8517dddc71d)
 # 第三章
