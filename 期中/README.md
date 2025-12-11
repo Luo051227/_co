@@ -18,6 +18,6 @@
 # 第三章
 [AI](https://gemini.google.com/share/343a93793658)
 # 第四章
-AI：[]()
+[AI](https://gemini.google.com/share/c1643e25113f)
 # 第五章
-AI：[]()
+[AI]()
