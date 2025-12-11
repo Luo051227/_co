@@ -26,6 +26,7 @@ Input A  Input B  And  Or  Xor
    0        1      0    1    1
    1        0      0    1    1
    1        1      1    1    0
+```
 ## 2. 選擇與分配器 (Selectors & Distributors)
 * Mux (多工器)  
   多選一。它有兩個輸入數據 (a, b) 和一個選擇信號 (sel)  
