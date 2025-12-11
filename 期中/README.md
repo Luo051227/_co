@@ -107,10 +107,30 @@ Input A  Input B  And  Or  Xor
   用途：  
   這是電腦運作最常用的功能之一，主要用於 Program Counter (PC)。電腦執行完一行指令後，需要把地址 +1 跳到下一行指令，這就是 Inc16 的工作  
   實作：  
-  其實就是一個 Add16，其中一個輸入是 in，另一個輸入固定設為 1  
+  一個 Add16，其中一個輸入是 in，另一個輸入固定設為 1  
 ## 3. 電腦的大腦
-* ALU
-  
+* ALU  
+  前面所有的元件（Add, And, Or, Not...）最後都封裝在這裡面  
+  功能：  
+  根據「控制信號 (Control Bits)」，決定要對輸入的數據做什麼運算（加法、減法、And、Or、反轉...）  
+  輸入：  
+  `x, y (兩個 16-bit 數據)`  
+  `zx, nx, zy, ny, f, no (6 個控制位元，這是 Hack 電腦架構的特徵)`  
+  輸出：  
+  `out (計算結果)`  
+  `zr (Zero flag): 是不是 0`  
+  `ng (Negative flag): 是不是負數`  
+  運作流程：  
+  ALU 內部充滿了 Mux (多工器)  
+  * 控制位元 f 決定 要算術(Add)還是要邏輯(And)  
+  * 控制位元 no 決定 最後要不要把結果反轉(Not)  
+ 
+總結：  
+1. HalfAdder (只能算個位)  
+2. FullAdder (能處理進位)  
+3. Add16 (串聯 16 個 FullAdder)  
+4. ALU (結合了 Add16 和之前學的 And16/Or16，變成一個萬能計算器)  
+
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/2)
 [AI](https://gemini.google.com/share/e8517dddc71d)
 # 第三章
