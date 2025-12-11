@@ -4,7 +4,8 @@
   * 0, 0 -> 1
   * 0, 1 -> 1
   * 1, 0 -> 1
-  * 1, 1 -> 0  `if in=0 then out=1 else out=0`  
+  * 1, 1 -> 0
+    `if in=0 then out=1 else out=0`  
 功能：  
 將輸入反轉。如果輸入是 0，輸出就是 1  
 * And 閘
