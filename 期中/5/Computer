@@ -1,0 +1,25 @@
+CHIP Computer {
+
+    IN reset;
+
+    PARTS:
+    // 1. ROM (Read Only Memory) - 存儲程式
+    // 根據 CPU 提供的 PC (Program Counter) 輸出對應的指令
+    ROM32K(address=pc, out=instruction);
+
+    // 2. CPU - 處理核心
+    // 輸入：記憶體來的數據 (memOut), ROM 來的指令 (instruction), reset 信號
+    // 輸出：寫入記憶體的數據 (cpuOut), 是否寫入 (writeM), 記憶體位址 (addressM), 下一條指令位址 (pc)
+    CPU(inM=memOut, instruction=instruction, reset=reset, 
+        outM=cpuOut, writeM=writeM, addressM=addressM, pc=pc);
+
+    // 3. Memory - 數據記憶體 + I/O
+    // 輸入：CPU 來的數據 (cpuOut), 是否加載 (writeM), 位址 (addressM)
+    // 輸出：給 CPU 的數據 (memOut)
+    Memory(in=cpuOut, load=writeM, address=addressM, out=memOut);
+}
+//ROM32K (程式記憶體)、CPU 和 Memory 連接在一起
+//ROM 提供指令給 CPU
+//CPU 計算數據，給出記憶體位址 (addressM) 和寫入數據 (outM)
+//Memory 接收數據或提供數據給 CPU (inM)
+//CPU 計算下一個指令位址 (pc) 給 ROM
