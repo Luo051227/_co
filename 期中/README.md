@@ -16,7 +16,7 @@
 # 第二章
 [AI](https://gemini.google.com/share/e8517dddc71d)
 # 第三章
-AI：[]()
+[AI](https://gemini.google.com/share/343a93793658)
 # 第四章
 AI：[]()
 # 第五章
