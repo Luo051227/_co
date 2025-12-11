@@ -69,6 +69,7 @@ Input A  Input B  And  Or  Xor
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/1)
 [AI](https://gemini.google.com/share/18d05542899e)
 # 第二章
+## 1. 基礎加法器 (The Adders)
 * HalfAdder (半加器)  
   計算 a + b，輸入： a, b  
   輸出：  
@@ -91,9 +92,23 @@ Input A  Input B  And  Or  Xor
   `sum` , `carry`  
   組成：  
   由 2 個 HalfAdder 和 1 個 Or 閘組成  
-  意義：多位元加法的基本磚塊，多個 FullAdder 串起來，就能算大數字  
-* Add16
-* Inc16
+  意義：多位元加法的基本磚塊，多個 FullAdder 串起來，就能算大數字
+## 2. 16-bit 運算單元
+* Add16  
+  功能：  
+  計算兩個 16 位元數字的相加 (out = a + b)  
+  實作：  
+  把 16 個 FullAdder 排成一排  
+  * 第 0 位的 carry 輸出連到第 1 位的 carry 輸入，以此類推  
+  * 這在硬體上被稱為「漣波進位加法器 (Ripple Carry Adder)」，因為進位像波浪一樣從最低位傳到最高位。  
+* Inc16  
+  功能：  
+  將輸入的數字加 1 (out = in + 1)  
+  用途：  
+  這是電腦運作最常用的功能之一，主要用於 Program Counter (PC)。電腦執行完一行指令後，需要把地址 +1 跳到下一行指令，這就是 Inc16 的工作  
+  實作：  
+  其實就是一個 Add16，其中一個輸入是 in，另一個輸入固定設為 1  
+## 3. 電腦的大腦
 * ALU
   
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/2)
