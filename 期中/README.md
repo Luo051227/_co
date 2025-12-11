@@ -1,4 +1,5 @@
 # 第一章
+## 1. 基本邏輯閘 (Basic Logic Gates)
 * Not 閘  
   邏輯思考：
   * 0, 0 -> 1
@@ -15,6 +16,7 @@
   `if a=1 and b=1 then out=1 else out=0`  
 * Or (或閘)
 * Xor (互斥或閘)
+## 2. 選擇與分配器 (Selectors & Distributors)
 * Mux (多工器)
 * DMux (解多工器)  
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/1)  
