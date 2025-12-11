@@ -15,6 +15,8 @@
   只有兩個都為 1 時才輸出 1  
   `if a=1 and b=1 then out=1 else out=0`  
 * Or (或閘)
+  只要有任何一個輸入是 1，輸出就是 1
+  `if a=1 or b=1 then out=1 else out=0`  
 * Xor (互斥或閘)
 ## 2. 選擇與分配器 (Selectors & Distributors)
 * Mux (多工器)
