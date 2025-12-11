@@ -1,1 +1,15 @@
+CHIP Bit {
+    IN in, load;
+    OUT out;
 
+    PARTS:
+    // 選擇器：如果 load=1 選 in，否則選回授值(dffOut)
+    Mux(a=dffOut, b=in, sel=load, out=muxOut);
+    
+    // 儲存單元：接收 Mux 的結果，輸出到外部 out，同時回授給 dffOut
+    DFF(in=muxOut, out=out, out=dffOut);
+}
+//load == 1，寫入新值 in
+//load == 0，保持舊值 out(t-1)
+//回授 (Feedback)：DFF 的輸出必須繞回來接回 Mux 的輸入
+//雙重輸出：DFF 的輸出既要給外部 (out=out)，也要給內部回授 (out=dffOut)
