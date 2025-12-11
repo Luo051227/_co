@@ -68,7 +68,7 @@ Input A  Input B  And  Or  Xor
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/1)
 [AI](https://gemini.google.com/share/18d05542899e)
 # 第二章
-* HalfAdder (半加器)
+* HalfAdder (半加器)  
   計算 a + b，輸入： a, b  
   輸出：  
   `sum (總和)：當前位元的結果`  
@@ -79,9 +79,18 @@ Input A  Input B  And  Or  Xor
   組成：   
   一個 Xor 閘 (算 sum) + 一個 And 閘 (算 carry)  
   缺點：  
-  它沒辦法處理「上一位傳過來的進位」，所以只能用在個位數相加。  
-* FullAdder (全加器)
-  
+  沒辦法處理「上一位傳過來的進位」，所以只能用在個位數相加。  
+* FullAdder (全加器)  
+  解決半加器的缺點，全加器多了一個「進位輸入」  
+  功能：  
+  計算 a + b + c (c 是前一位的進位)  
+  輸入：  
+  a, b, c (input carry)  
+  輸出：  
+  `sum` , `carry`  
+  組成：  
+  由 2 個 HalfAdder 和 1 個 Or 閘組成  
+  意義：多位元加法的基本磚塊，多個 FullAdder 串起來，就能算大數字  
 * Add16
 * Inc16
 * ALU
