@@ -1,0 +1,25 @@
+CHIP RAM8 {
+    IN in[16], load, address[3];
+    OUT out[16];
+
+    PARTS:
+    // 1. 寫入控制分派：根據 address 決定哪一個 Register 的 load 為 1
+    DMux8Way(in=load, sel=address, a=load0, b=load1, c=load2, d=load3, e=load4, f=load5, g=load6, h=load7);
+
+    // 2. 內部暫存器群
+    Register(in=in, load=load0, out=r0);
+    Register(in=in, load=load1, out=r1);
+    Register(in=in, load=load2, out=r2);
+    Register(in=in, load=load3, out=r3);
+    Register(in=in, load=load4, out=r4);
+    Register(in=in, load=load5, out=r5);
+    Register(in=in, load=load6, out=r6);
+    Register(in=in, load=load7, out=r7);
+
+    // 3. 輸出選擇：根據 address 決定輸出誰的值
+    Mux8Way16(a=r0, b=r1, c=r2, d=r3, e=r4, f=r5, g=r6, h=r7, sel=address, out=out);
+}
+//讀取 (Read)： 給定 address (3 bits)，從 8 個 Register 中選出一個輸出 -> 使用 Mux8Way16
+//寫入 (Write)： 給定 load 和 address，只有被選中的那個 Register 的 load 會變成 1，其他的都是 0 -> 使用 DMux8Way
+//DMux8Way 將 load 訊號分派給其中一個暫存器
+//Mux8Way16 選擇其中一個暫存器的輸出
