@@ -35,7 +35,8 @@ Input A  Input B  And  Or  Xor
 * DMux (解多工器)  
   一分多。它有一個輸入 (in) 和一個選擇信號 (sel)，輸出分為 a 和 b  
   `sel == 0，原本的輸入傳送到 a（b 則為 0）`  
-  `sel == 1，原本的輸入傳送到 b（a 則為 0）`        
+  `sel == 1，原本的輸入傳送到 b（a 則為 0）`
+## 3. 多位元與多通道變體 (Bus & Multi-Way Variants)      
 * Not16  
   將 16 個輸入位元全部反轉  
 * And16  
