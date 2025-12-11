@@ -1,0 +1,32 @@
+CHIP PC {
+    IN in[16], load, inc, reset;
+    OUT out[16];
+
+    PARTS:
+    // 1. 準備各種可能的數據
+    // 獲取當前 Register 的值 (loopBack) 並加 1
+    Inc16(in=loopBack, out=incOut);
+
+    // 2. 透過層層 Mux 篩選 (注意順序：優先級低的先處理)
+    
+    // (A) 處理 Inc：如果 inc=1，選 incOut，否則保持原值(loopBack)
+    Mux16(a=loopBack, b=incOut, sel=inc, out=w1);
+
+    // (B) 處理 Load：如果 load=1，選輸入值(in)，否則用剛剛算出來的 w1
+    // (Load 的優先級高於 Inc，所以它在 Inc 後面，可以覆蓋 w1)
+    Mux16(a=w1, b=in, sel=load, out=w2);
+
+    // (C) 處理 Reset：如果 reset=1，強制歸零(false)，否則用 w2
+    // (Reset 優先級最高，放在最後)
+    Mux16(a=w2, b=false, sel=reset, out=finalIn);
+
+    // 3. 存入 Register
+    // load 設為 true，因為我們已經透過上面的 Mux 決定好這一輪到底要寫入什麼值了
+    Register(in=finalIn, load=true, out=out, out=loopBack);
+}
+//PC 是一個特殊的 Register，它的下一個值取決於三個控制位元，優先級 (Priority)：Reset > Load > Inc > Keep
+//Reset (最高優先)：歸零
+//Load：跳轉 (Jump)，讀入新地址
+//Inc：遞增 (PC++)，執行下一行指令
+//Hold：保持原值
+//要讓 Reset 優先級最高，它必須放在最後一個 Mux（最靠近 Register 入口），這樣才能覆蓋掉前面的選擇
