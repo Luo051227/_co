@@ -20,4 +20,4 @@
 # 第四章
 [AI](https://gemini.google.com/share/c1643e25113f)
 # 第五章
-[AI]()
+[AI](https://gemini.google.com/share/d22f4a1e0077)
