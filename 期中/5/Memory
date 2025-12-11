@@ -1,0 +1,28 @@
+CHIP Memory {
+    IN in[16], load, address[15];
+    OUT out[16];
+
+    PARTS:
+    // 1. 路由邏輯 (Routing Logic)
+    // address[14] 和 address[13] 決定了我們是在訪問 RAM, Screen 還是 Keyboard
+    // 00, 01 -> RAM (因為 RAM 佔據 0-16383, address[14] 都是 0)
+    // 10 -> Screen (address[14]=1, address[13]=0)
+    // 11 -> Keyboard (address[14]=1, address[13]=1)
+    
+    DMux4Way(in=load, sel=address[13..14], a=loadRAM1, b=loadRAM2, c=loadScreen, d=loadKBD);
+    
+    // 因為 RAM 佔據了前兩個 slot (00 和 01)，我們將這兩個 load 信號合併
+    Or(a=loadRAM1, b=loadRAM2, out=loadRAM);
+
+    // 2. 實例化記憶體單元 (Sub-chips)
+    RAM16K(in=in, load=loadRAM, address=address[0..13], out=outRAM);
+    Screen(in=in, load=loadScreen, address=address[0..12], out=outScreen);
+    Keyboard(out=outKBD);
+
+    // 3. 輸出選擇 (Output Selection)
+    Mux4Way16(a=outRAM, b=outRAM, c=outScreen, d=outKBD, sel=address[13..14], out=out);
+}
+//Hack 的記憶體是由三個部分組成的位址映射
+//RAM16K: 用於數據存儲 (位址 0 - 16383)
+//Screen: 螢幕記憶體映射 (位址 16384 - 24575)
+//Keyboard: 鍵盤記憶體映射 (位址 24576)
