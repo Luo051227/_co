@@ -188,17 +188,17 @@ Input A  Input B  And  Or  Xor
   定址：  
   14 個位元  
   注意：  
-  這是 Hack 電腦的主記憶體大小。因為它是用 4 個 RAM4K 組成的（而不是 8 個），所以它的最上層邏輯稍微不同（使用 DMux4Way 和 Mux4Way）。
+  這是 Hack 電腦的主記憶體大小。因為它是用 4 個 RAM4K 組成的（而不是 8 個），所以它的最上層邏輯稍微不同（使用 DMux4Way 和 Mux4Way）。  
 ## 3. 特殊功能暫存器
-* PC
-  告訴 CPU 「下一行程式碼在哪裡」
-  功能：
-  儲存著下一條指令的記憶體位址
-  邏輯 (由高優先級到低優先級)：
-  1. Reset (重置)： 若 reset = 1，PC 歸零 (goto 0)。通常用於電腦重啟
-  2. Load (跳轉)： 若 load = 1，PC 被設為輸入值 (Jump 到特定行數)
-  3. Inc (遞增)： 若 inc = 1，PC 值加 1 (執行下一行)
-  4. Hold (保持)： 若以上皆非，保持原值
+* PC  
+  告訴 CPU 「下一行程式碼在哪裡」  
+  功能：  
+  儲存著下一條指令的記憶體位址  
+  邏輯 (由高優先級到低優先級)：  
+  1. Reset (重置)： 若 reset = 1，PC 歸零 (goto 0)。通常用於電腦重啟  
+  2. Load (跳轉)： 若 load = 1，PC 被設為輸入值 (Jump 到特定行數)  
+  3. Inc (遞增)： 若 inc = 1，PC 值加 1 (執行下一行)  
+  4. Hold (保持)： 若以上皆非，保持原值  
 ## 總結
 | 元件名稱 | 組成結構 | Address 位元數 | 功能描述 |
 | :--- | :--- | :--- | :--- |
@@ -209,7 +209,7 @@ Input A  Input B  And  Or  Xor
 | **RAM512** | 8 x `RAM64` | 9 | 大型記憶體 |
 | **RAM4K** | 8 x `RAM512` | 12 | 巨型記憶體 |
 | **RAM16K** | 4 x `RAM4K` | 14 | Hack 電腦的主記憶體 |
-| **PC** | `Register` + `Inc` | 0 | 程式計數器，控制執行順序 |
+| **PC** | `Register` + `Inc` | 0 | 程式計數器，控制執行順序 |  
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/3)
 [AI](https://gemini.google.com/share/343a93793658)
 # 第四章
