@@ -210,6 +210,8 @@ Input A  Input B  And  Or  Xor
 | **RAM4K** | 8 x `RAM512` | 12 | 巨型記憶體 |
 | **RAM16K** | 4 x `RAM4K` | 14 | Hack 電腦的主記憶體 |
 | **PC** | `Register` + `Inc` | 0 | 程式計數器，控制執行順序 |  
+
+
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/3)
 [AI](https://gemini.google.com/share/343a93793658)
 # 第四章
