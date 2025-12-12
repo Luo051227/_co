@@ -246,10 +246,10 @@ Hack 電腦有兩個主要的記憶體（Instruction Memory 和 Data Memory）�
   2. 賦值 (M=10) (前提是 10 已經在 D 或可以直接生成)
   ```text
   @10
-D=A   // 把常數 10 放入 D
-@x    // 讓 A 指向變數 x 的記憶體位置
-M=D   // 把 D 的值 (10) 存入 M (也就是 x)
-```
+  D=A   // 把常數 10 放入 D
+  @x    // 讓 A 指向變數 x 的記憶體位置
+  M=D   // 把 D 的值 (10) 存入 M (也就是 x)
+  ```
 
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/4)
 [AI](https://gemini.google.com/share/c1643e25113f)
