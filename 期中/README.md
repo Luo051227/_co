@@ -135,6 +135,39 @@ Input A  Input B  And  Or  Xor
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/2)
 [AI](https://gemini.google.com/share/e8517dddc71d)
 # 第三章
+## 1. 基礎儲存單元
+* Bit  
+  只能儲存一個 0 或 1  
+  功能：  
+  能記住上一個時間點的狀態  
+  原理：  
+  由一個 DFF (Data Flip-Flop，資料正反器) 和一個 Mux (多工器) 組成  
+  `load = 1 時，寫入新值`  
+  `load = 0 時，Mux 會將 DFF 的輸出拉回輸入，形成迴圈，保持舊值不變`  
+* Register  
+  CPU 運算時使用的基本儲存單元  
+  結構：  
+  16 個 Bit 並排組成（在 Hack 電腦架構中）  
+  功能：  
+  可以儲存一個 16-bit 的字組 (Word)，例如一個整數或一個記憶體位址  
+  運作：  
+  16 個 Bit 共用同一個 load 訊號，load = 1，這 16 個 Bit 會同時更新  
+## 2. RAM (隨機存取記憶體) 系列
+`遞迴 (Recursive) 結構，利用小的 RAM 組合出大的 RAM`
+* RAM8  
+  容量：  
+  8 個 16-bit 暫存器  
+  定址 (Address)：  
+  3 個位元 ($2^3 = 8$)，範圍是 000 到 111  
+  原理：  
+  * 輸入 (DMux)： 使用 address 的前幾位將輸入訊號導向正確的暫存器  
+  * 輸出 (Mux)： 使用 address 將正確暫存器的輸出選出來  
+* RAM64
+* RAM512
+* RAM4K (4096)
+* RAM16K (16384)
+## 3. 特殊功能暫存器
+* PC
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/3)
 [AI](https://gemini.google.com/share/343a93793658)
 # 第四章
