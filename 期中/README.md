@@ -278,5 +278,59 @@ Fill:`if KBD != 0: fill_screen_black() else: fill_screen_white()`
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/4)
 [AI](https://gemini.google.com/share/c1643e25113f)
 # 第五章
+## 1. Memory (記憶體)  
+Hack 平台中，Memory 晶片不只是一條 RAM，它是一個 「記憶體映射 (Memory Map)」 裝置。這意味著不同的地址範圍對應到不同的硬體  
+目標：  
+建立一個單一介面，根據輸入的 address，將數據導向正確的硬體  
+Hack Memory 的結構：  
+* RAM16K: 負責數據儲存 (地址 0 ~ 16383)  
+* Screen: 負責顯示 (地址 16384 ~ 24575)  
+* Keyboard: 負責輸入 (地址 24576)  
+實作邏輯 ：  
+`需要觀察 15 位元地址 (address[0..14]) 的前幾位來決定要啟動哪個零件`  
+* RAM16K: 當 address[14] == 0 時，存取 RAM  
+* Screen: 當 address[14] == 1 且 address[13] == 0 時，存取螢幕  
+* Keyboard: 當 address[14] == 1 且 address[13] == 1 時，讀取鍵盤  
+構建：  
+* DMux (Demultiplexer) 來分配 load 訊號（決定寫入 RAM 還是 Screen）  
+* Mux (Multiplexer) 來整合最後的 out 輸出（決定輸出 RAM 的值、Screen 的值還是 Keyboard 的值）  
+## 2. CPU (中央處理器)  
+CPU 的主要組成：  
+* ALU: 負責計算 (在 Project 2 做過)  
+* Register A (A 暫存器): 存放數據或「地址」  
+* Register D (D 暫存器): 專門存放數據  
+* PC (Program Counter): 決定下一行指令在哪裡  
+實作核心邏輯 (解碼指令)：  
+Hack 的指令是 16-bit 的 (instruction[16])。你需要判斷它是 A-指令 還是 C-指令  
+* 分辨指令類型 (Bit 15):  
+  * instruction[15] == 0：這是 A-指令 (例如 @100)。這時你需要把數值載入 A 暫存器  
+  * instruction[15] == 1：這是 C-指令 (例如 D=M+1)。這時你需要控制 ALU 運算並決定存入哪裡  
+* 控制訊號 (C-指令的解碼):  
+  * ALU 的輸入:  
+    其中一個輸入永遠是 D 暫存器；另一個輸入取決於 instruction[12] (a-bit)，決定是讀取 A 暫存器 還是 Memory input (inM)  
+  * 寫入控制 (Destination bits):  
+    d1, d2, d3 (bits 5, 4, 3) 分別控制是否寫入 A 暫存器、D 暫存器或 Memory (writeM)  
+  * 跳轉邏輯 (Jump bits):  
+    j1, j2, j3 (bits 2, 1, 0) 配合 ALU 的輸出旗標 (zr, ng) 來決定 PC 是否要載入新地址 (Jump) 還是繼續 +1
+## 3. Computer (整台電腦)
+結構 (馮·紐曼架構):
+* ROM32K (唯讀記憶體): 這裡存放程式碼
+* CPU: 執行運算
+* Memory: 存放數據
+連接方式 (繞圈圈的資料流):
+* ROM -> CPU:
+  ROM32K 的輸出 (instruction) 連接到 CPU 的 instruction 輸入
+* CPU -> Memory:
+  CPU 計算出的 outM (數據)、addressM (地址)、writeM (寫入訊號) 全部連到 Memory 的對應輸入
+* Memory -> CPU:
+  Memory 的輸出 out 連回到 CPU 的 inM (這是為了讓 CPU 讀取記憶體的值)
+* CPU -> ROM:
+  CPU 的 pc (Program Counter) 輸出，連接到 ROM32K 的 address 輸入 (告訴 ROM 下一行要給 CPU 什麼指令)
+Reset 按鈕:
+Computer 晶片有一個 reset 輸入，直接連到 CPU 的 reset 腳位。當按下時，PC 歸零，程式重頭開始
+## 總結
+* Memory: 最簡單，練習操作地址位元 (Bit manipulation)
+* CPU: 最難，建議先把那張 Hack CPU 的架構圖印出來，用筆畫出 A-指令和 C-指令時數據該怎麼流動
+* Computer: 最快，只要正確連接上面兩個晶片與 ROM 即可
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/5)
 [AI](https://gemini.google.com/share/d22f4a1e0077)
