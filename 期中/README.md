@@ -312,25 +312,25 @@ Hack 的指令是 16-bit 的 (instruction[16])。你需要判斷它是 A-指令 
     d1, d2, d3 (bits 5, 4, 3) 分別控制是否寫入 A 暫存器、D 暫存器或 Memory (writeM)  
   * 跳轉邏輯 (Jump bits):  
     j1, j2, j3 (bits 2, 1, 0) 配合 ALU 的輸出旗標 (zr, ng) 來決定 PC 是否要載入新地址 (Jump) 還是繼續 +1
-## 3. Computer (整台電腦)
-結構 (馮·紐曼架構):
-* ROM32K (唯讀記憶體): 這裡存放程式碼
-* CPU: 執行運算
-* Memory: 存放數據
-連接方式 (繞圈圈的資料流):
-* ROM -> CPU:
-  ROM32K 的輸出 (instruction) 連接到 CPU 的 instruction 輸入
-* CPU -> Memory:
-  CPU 計算出的 outM (數據)、addressM (地址)、writeM (寫入訊號) 全部連到 Memory 的對應輸入
-* Memory -> CPU:
-  Memory 的輸出 out 連回到 CPU 的 inM (這是為了讓 CPU 讀取記憶體的值)
-* CPU -> ROM:
-  CPU 的 pc (Program Counter) 輸出，連接到 ROM32K 的 address 輸入 (告訴 ROM 下一行要給 CPU 什麼指令)
-Reset 按鈕:
-Computer 晶片有一個 reset 輸入，直接連到 CPU 的 reset 腳位。當按下時，PC 歸零，程式重頭開始
-## 總結
-* Memory: 最簡單，練習操作地址位元 (Bit manipulation)
-* CPU: 最難，建議先把那張 Hack CPU 的架構圖印出來，用筆畫出 A-指令和 C-指令時數據該怎麼流動
-* Computer: 最快，只要正確連接上面兩個晶片與 ROM 即可
+## 3. Computer (整台電腦)  
+結構 (馮·紐曼架構):  
+* ROM32K (唯讀記憶體): 這裡存放程式碼  
+* CPU: 執行運算  
+* Memory: 存放數據  
+連接方式 (繞圈圈的資料流):  
+* ROM -> CPU:  
+  ROM32K 的輸出 (instruction) 連接到 CPU 的 instruction 輸入  
+* CPU -> Memory:  
+  CPU 計算出的 outM (數據)、addressM (地址)、writeM (寫入訊號) 全部連到 Memory 的對應輸入  
+* Memory -> CPU:  
+  Memory 的輸出 out 連回到 CPU 的 inM (這是為了讓 CPU 讀取記憶體的值)  
+* CPU -> ROM:  
+  CPU 的 pc (Program Counter) 輸出，連接到 ROM32K 的 address 輸入 (告訴 ROM 下一行要給 CPU 什麼指令)  
+Reset 按鈕:  
+Computer 晶片有一個 reset 輸入，直接連到 CPU 的 reset 腳位。當按下時，PC 歸零，程式重頭開始  
+## 總結  
+* Memory: 最簡單，練習操作地址位元 (Bit manipulation)  
+* CPU: 最難，建議先把那張 Hack CPU 的架構圖印出來，用筆畫出 A-指令和 C-指令時數據該怎麼流動  
+* Computer: 最快，只要正確連接上面兩個晶片與 ROM 即可  
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/5)
 [AI](https://gemini.google.com/share/d22f4a1e0077)
