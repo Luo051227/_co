@@ -241,6 +241,7 @@ Hack 電腦有兩個主要的記憶體（Instruction Memory 和 Data Memory）�
   * 0;JMP (無條件跳轉到 A 指向的行號)  
   * D;JGT (如果 D > 0，則跳轉到 A 指向的行號)  
 ## 3. 實作策略：如何寫 Hack Assembly  
+** 變數與賦值 (Variables)**
 
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/4)
 [AI](https://gemini.google.com/share/c1643e25113f)
