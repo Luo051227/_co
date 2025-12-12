@@ -241,16 +241,40 @@ Hack 電腦有兩個主要的記憶體（Instruction Memory 和 Data Memory）�
   * 0;JMP (無條件跳轉到 A 指向的行號)  
   * D;JGT (如果 D > 0，則跳轉到 A 指向的行號)  
 ## 3. 實作策略：如何寫 Hack Assembly  
-* 變數與賦值 (Variables)
-  1. 選址 (@x)
-  2. 賦值 (M=10) (前提是 10 已經在 D 或可以直接生成)
+* 變數與賦值 (Variables)  
+  1. 選址 (@x)  
+  2. 賦值 (M=10) (前提是 10 已經在 D 或可以直接生成)  
   ```text
   @10
   D=A   // 把常數 10 放入 D
   @x    // 讓 A 指向變數 x 的記憶體位置
   M=D   // 把 D 的值 (10) 存入 M (也就是 x)
   ```
-
+* 迴圈與邏輯控制 (Loops & Logic)  
+  定義 Label：  
+  使用 (LOOP) 或 (END) 來標記位置  
+  比較：  
+  做減法運算 (例如 D-A)  
+  跳轉：  
+  根據運算結果決定是否跳轉 (JEQ, JGT, JLT 等)  
+  ```text
+  (LOOP)  
+   // 這裡寫你的程式碼...
+   @LOOP
+   0;JMP // 無條件跳回 LOOP 標籤
+  ```
+* 指標與螢幕操作 (Pointers & I/O)  
+  * SCREEN (RAM[16384]): 改變這裡的數值會直接讓螢幕像素變黑或變白  
+  * KBD (RAM[24576]): 讀取這裡的數值可以知道使用者按了什麼鍵  
+## 具體任務流程 (Project 4 Workflow)  
+思考邏輯：  
+先用 Pseudo-code (類似 Python 或 C) 寫下邏輯  
+Mult:`i=0, sum=0, while i < R1: sum += R0, i++`  
+Fill:`if KBD != 0: fill_screen_black() else: fill_screen_white()`  
+使用 CPU Emulator：  
+* 這是 Nand2Tetris 提供的軟體工具  
+* 載入 .asm 檔  
+* 會模擬 Hack 電腦的運作。可以單步執行 (Single Step)，觀察 D、A、RAM 的數值變化   
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/4)
 [AI](https://gemini.google.com/share/c1643e25113f)
 # 第五章
