@@ -215,6 +215,33 @@ Input A  Input B  And  Or  Xor
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/3)
 [AI](https://gemini.google.com/share/343a93793658)
 # 第四章
+## 1. 核心觀念：Hack 電腦的架構 (The Architecture)
+Hack 電腦有兩個主要的記憶體（Instruction Memory 和 Data Memory），以及三個關鍵的「暫存器 (Registers)」  
+* D 暫存器 (Data Register): 專門用來儲存數據、計算結果  
+* A 暫存器 (Address Register): 雙重用途  
+  1. 儲存數據（常數）  
+  2. 儲存記憶體位址（當你想讀寫 RAM 時，A 的值就是地址）  
+* M (Memory): 這不是一個實體暫存器，它代表 RAM[A]。也就是說，目前 A 暫存器指到的那個記憶體位址裡面的值  
+## 2. 實作工具：Hack 指令集 (Instruction Set)  
+* A-Instruction (A 指令)  
+  語法：`@value`    
+  功能：  
+  將數值載入到 A 暫存器  
+  用途：   
+  1. 設定常數 (例如 @100 -> A=100)  
+  2. 選定記憶體位址 (例如 @sum -> A 指向變數 sum 的位址)  
+  3. 設定跳轉目標 (例如 @LOOP -> A 指向標籤 LOOP 的程式行號)  
+* C-Instruction (C 指令)  
+  語法：  
+  dest = comp ; jump (dest 和 jump 是選填的)  
+  功能：  
+  執行計算、存儲結果、決定是否跳轉  
+  範例：  
+  * D=M+1 (讀取記憶體 M 的值，加 1，存入 D)  
+  * 0;JMP (無條件跳轉到 A 指向的行號)  
+  * D;JGT (如果 D > 0，則跳轉到 A 指向的行號)  
+## 3. 實作策略：如何寫 Hack Assembly  
+
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/4)
 [AI](https://gemini.google.com/share/c1643e25113f)
 # 第五章
