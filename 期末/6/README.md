@@ -11,3 +11,5 @@ PongL
 Rect  
 <img width="1012" height="684" alt="image" src="https://github.com/user-attachments/assets/8b53e98f-bf3e-4a9e-9a59-4e553d593bc0" />  
 RectL  
+<img width="1006" height="690" alt="image" src="https://github.com/user-attachments/assets/e150089e-0741-4f07-a6f6-911d53429a76" />  
+`以上都是使用Nand2Tetris 提供的軟體包（Software Package）中開啟檔案`
