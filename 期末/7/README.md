@@ -134,12 +134,3 @@ M=D+M   // x = x + y (直接覆蓋 x 的位置，SP 停在這裡剛好)
 4.  **Static 命名規範**:
     * 若輸入檔名為 `Xxx.vm`，指令 `static 5` 應翻譯為組合語言的符號 **`@Xxx.5`**。這樣 Assembler 才能正確分配唯一地址。
 
----
-
-## 7. 範例對照 (Example Translation)
-
-### VM Code
-```vm
-push constant 10
-pop local 0
-add
