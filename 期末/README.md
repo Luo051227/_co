@@ -444,3 +444,126 @@ Hack 平台提供了一組類似作業系統 (OS) 的 API 供我們使用。在�
 允許直接操作實體記憶體 (RAM)。
 * `Memory.peek(int address)`: 讀取指定地址的數值 (等同 `return RAM[address]`)。
 * `Memory.poke(int address, int value)`: 修改指定地址的數值 (等同 `RAM[address] = value`)。
+# 第10章
+
+## 1. 核心概念 (Overview)
+這是兩階段編譯器的第一階段。
+* **輸入**: `.jack` 原始碼檔案。
+* **處理**:
+    1.  **Tokenizer (詞彙分析)**: 將字元流 (Characters) 切割成有意義的標記 (Tokens)。
+    2.  **Parser (語法分析)**: 根據 Jack 的文法規則 (Grammar)，將 Tokens 組織成樹狀結構。
+* **輸出**: `.xml` 檔案 (解析樹)。
+    * *注意*: 這一章還不會產生 `.vm` 程式碼，XML 只是為了驗證你的 Parser 對結構的理解是否正確。
+
+---
+
+## 2. 詞彙分析 (Lexical Analysis / Tokenizer)
+
+Tokenizer 的工作是忽略空白與註解，將程式碼分解為以下五種 Token：
+
+### Token 類型
+1.  **Keyword (關鍵字)**: `class`, `constructor`, `function`, `method`, `int`, `boolean`, `if`, `while`... 等保留字。
+2.  **Symbol (符號)**: `{`, `}`, `(`, `)`, `[`, `]`, `.`, `,`, `;`, `+`, `-`, `*`, `/`, `&`, `|`, `<`, `>`, `=`, `~`。
+3.  **Integer Constant (整數常數)**: 0 ~ 32767 的數字。
+4.  **String Constant (字串常數)**: 被雙引號包圍的字串 (不含引號與換行)。
+5.  **Identifier (識別字)**: 程式設計師自定義的名稱 (變數名、類別名、函式名)。不能以數字開頭。
+
+### XML 輸出範例
+Tokenizer 會將每個 Token 包在對應的標籤中：
+```xml
+<keyword> if </keyword>
+<symbol> ( </symbol>
+<identifier> x </identifier>
+<symbol> &lt; </symbol>  <integerConstant> 0 </integerConstant>
+<symbol> ) </symbol>
+```
+## 3. 語法分析 (Syntax Analysis / Parser)
+
+我們使用 **遞迴下降解析器 (Recursive Descent Parser)** 來實作。這意味著對於文法中的每一個「非終端規則 (Non-terminal rule)」，我們都會編寫一個對應的方法來處理。
+
+
+
+### 文法規則 (Grammar Rules)
+Jack 的文法是 **LL(1)** 的，這代表我們只需要「偷看 (Lookahead)」下一個 Token，就能決定要呼叫哪個編譯方法，不需要回溯 (Backtracking)。
+
+#### 1. 程式結構 (Program Structure)
+* `class`: `class className { classVarDec* subroutineDec* }`
+* `classVarDec`: `static` | `field` type varName, ... ;
+* `subroutineDec`: `constructor` | `function` | `method` ...
+
+#### 2. 陳述句 (Statements)
+* `letStatement`: `let varName = expression;`
+* `ifStatement`: `if (expression) { statements } else { statements }`
+* `whileStatement`: `while (expression) { statements }`
+* `doStatement`: `do subroutineCall;`
+* `returnStatement`: `return expression?;`
+
+#### 3. 表達式 (Expressions)
+這是最複雜的部分，因為有運算子優先權與嵌套結構的問題。
+* `expression`: `term (op term)*`
+* `term`: `integerConstant` | `stringConstant` | `keywordConstant` | `varName` | `varName[expression]` | `subroutineCall` | `(expression)` | `unaryOp term`
+
+---
+
+## 4. 實作架構 (Implementation Architecture)
+
+
+
+建議將程式拆分為兩個主要模組：
+
+### A. JackTokenizer (模組)
+負責處理字串流 (Input Stream)。
+* `hasMoreTokens()`: 是否還有下一個標記？
+* `advance()`: 讀取下一個標記。
+* `tokenType()`: 回傳當前 Token 的類型 (`KEYWORD`, `SYMBOL`, `IDENTIFIER`...)。
+* `keyWord()`, `symbol()`, `intVal()`...: 回傳具體的 Token 內容。
+
+### B. CompilationEngine (模組)
+負責遞迴解析，並輸出 XML 檔案。
+建構子通常接收一個 `JackTokenizer` 物件和一個輸出檔案 (或 Stream)。
+
+* **結構編譯**:
+    * `compileClass()`
+    * `compileClassVarDec()`
+    * `compileSubroutine()`
+* **陳述句編譯**:
+    * `compileStatements()`: 迴圈檢查下一個 Token 是否為 `let`/`if`/`while`/`do`/`return`。
+    * `compileLet()`, `compileIf()`, `compileWhile()`...
+* **表達式編譯**:
+    * `compileExpression()`
+    * `compileTerm()`: **(最難點)** 需判斷是變數、陣列存取還是函式呼叫。
+    * `compileExpressionList()`
+
+---
+
+## 5. 實作細節與難點 (Implementation Tips)
+
+### 1. 處理 XML 特殊字元
+XML 規範中，`<`, `>`, `&` 必須轉義，否則瀏覽器或比對器無法正確讀取。
+* `<`  -> `&lt;`
+* `>`  -> `&gt;`
+* `&`  -> `&amp;`
+* `"`  -> `&quot;` (雙引號通常可不轉，但建議轉義以防萬一)
+
+### 2. LL(1) 的衝突解決 (Lookahead)
+在 `compileTerm` 時會遇到歧義，例如開頭都是 `identifier`：
+* `varName` (變數)
+* `varName[expression]` (陣列存取)
+* `varName.method()` (方法呼叫)
+
+**解法**: 當讀到 `identifier` 時，必須**偷看 (Lookahead)** 下一個 Token：
+* 如果是 `[` -> 呼叫陣列處理邏輯。
+* 如果是 `(` 或 `.` -> 呼叫副程式處理邏輯。
+* 否則 -> 視為單純變數。
+
+### 3. 表達式的遞迴結構
+`compileExpression` 的邏輯通常如下 (處理 `term op term` 結構)：
+```python
+# Pseudo code
+compileTerm() # 處理第一個項 (例如: a)
+
+while (nextToken is op): # 檢查是否為 + - * / & | < > =
+    write symbol (op)    # 輸出運算子
+    advance()            # 消耗運算子
+    compileTerm()        # 處理下一個項 (例如: b)
+```
