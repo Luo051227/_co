@@ -74,3 +74,71 @@ AM=M-1  // SP--, A=SP (指向 y)
 D=M     // D = y
 A=A-1   // A 指向 x (注意 SP 已經減了，這裡直接看前一個位置即可)
 M=D+M   // x = x + y (直接覆蓋 x 的位置，SP 停在這裡剛好)
+## 邏輯運算實作細節 (Arithmetic & Logic Implementation)
+
+### 一元運算 (neg, not)
+* **邏輯**: `Pop x` -> `計算 op x` -> `Push 結果`。
+* **實作技巧**: 因為只涉及一個運算元，其實**不需要移動 SP 指標**，只需直接讀取 `M[SP-1]`，修改後寫回即可。
+
+### 比較運算 (eq, gt, lt)
+* **邏輯**: `Pop y` -> `Pop x` -> `比較 x 和 y`。
+    * 如果 **True**: 推入 `-1` (二進制全為 1，即 `111...111`)。
+    * 如果 **False**: 推入 `0`。
+* **難點**: Hack ALU 沒有直接輸出 True/False 的指令。
+    * **解法**: 使用減法 `D = x - y`，配合 Jump 指令 (`JEQ`, `JGT`, `JLT`) 來判斷 D 的值。
+* **Label 唯一性問題**:
+    * 一個 VM 程式中會有很多個 `eq` 或 `gt` 指令。
+    * 翻譯成 Assembly 時，跳轉用的 Label (如 `(TRUE)`, `(FALSE)`, `(CONTINUE)`) 不能重複。
+    * **解決方案**: 實作一個計數器，為每個 Label 加上流水號，例如 `(JUMP_TO_TRUE_001)`, `(END_EQ_001)`。
+
+---
+
+## 5. VM Translator 程式架構
+
+建議將程式拆分為兩個主要模組，職責分離：
+
+### A. Parser (解析器)
+負責讀取 `.vm` 檔案並解析字串。
+* `commandType()`: 回傳指令類型 (如 `C_ARITHMETIC`, `C_PUSH`, `C_POP` 等)。
+* `arg1()`: 回傳指令的第一個參數 (例如 `add` 或 `local`)。
+* `arg2()`: 回傳指令的第二個參數 (例如 `index` 數值)。
+
+### B. CodeWriter (程式碼產生器)
+負責輸出對應的 `.asm` 內容。
+* `setFileName(fileName)`: 用於設定當前處理的檔案名稱 (處理 `static` 變數命名空間用)。
+* `writeArithmetic(command)`: 翻譯算術邏輯指令 (`add`, `sub`, `eq` 等)。
+* `writePushPop(command, segment, index)`: 核心邏輯所在，負責翻譯堆疊與記憶體區段的存取。
+
+---
+
+## 6. 實作細節與陷阱 (Tips)
+
+1.  **SP 的維護規則**:
+    * **Push**: 先把值放入 `M[SP]`，然後 `SP++`。
+    * **Pop**: 先 `SP--`，然後取出 `M[SP]` 的值。
+
+2.  **Pop 到 segment 的正確順序**:
+    * 假設指令是 `pop local 2`。
+    * **錯誤做法**: 先 Pop 資料到 D，再算地址。 (這樣 D 被佔用，算地址會很麻煩)。
+    * **正確順序**:
+        1. 先計算目標地址 (`LCL + 2`)。
+        2. 將地址暫存到通用暫存器 **`R13`**。
+        3. 從 Stack Pop 資料到 D。
+        4. 將 D 寫入 `RAM[R13]` (`@R13`, `A=M`, `M=D`)。
+
+3.  **True 的數值**:
+    * 在 VM 規範中，True 代表 **`-1`** (`111...111`)，False 代表 `0`。
+    * 千萬不要寫成 `1`。
+
+4.  **Static 命名規範**:
+    * 若輸入檔名為 `Xxx.vm`，指令 `static 5` 應翻譯為組合語言的符號 **`@Xxx.5`**。這樣 Assembler 才能正確分配唯一地址。
+
+---
+
+## 7. 範例對照 (Example Translation)
+
+### VM Code
+```vm
+push constant 10
+pop local 0
+add
