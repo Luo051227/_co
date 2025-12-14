@@ -746,3 +746,192 @@ label L1
     // compile s2 (if exists)
 label L2
 ```
+### While Statement (迴圈控制)
+
+* **Jack**: `while (cond) { s }`
+* **VM Logic**: 
+    * 需要兩個 Label：`L1` 用於迴圈開頭，`L2` 用於跳出迴圈。
+    * 邏輯是：先進入 L1 -> 計算條件 -> 取反 (`not`) -> 如果是 false (即 `not` 後為 true) 則跳到 L2 -> 執行內容 -> 跳回 L1。
+
+```vm
+label L1
+    // 1. 編譯條件表達式 (compile condition)
+    // 結果會在堆疊頂端 (true=-1, false=0)
+    not         // 將結果反轉
+    if-goto L2  // 如果條件不成立 (原本為 false, not 後為 true)，跳出迴圈
+    
+    // 2. 編譯迴圈內容 (compile statements s)
+    
+    goto L1     // 無條件跳回開頭，重新檢查條件
+label L2
+```
+## 6. VMWriter (輔助模組)
+
+建議將輸出 VM 指令的邏輯封裝成一個 `VMWriter` 類別，這樣可以保持 `CompilationEngine` 的程式碼乾淨，避免到處都是字串拼接。
+
+### 建議 API
+* `writePush(segment, index)`: 輸出 `push segment index`
+* `writePop(segment, index)`: 輸出 `pop segment index`
+* `writeArithmetic(command)`: 輸出 `add`, `sub`, `neg`, `eq`...
+* `writeLabel(label)`: 輸出 `label labelName`
+* `writeGoto(label)`: 輸出 `goto labelName`
+* `writeIf(label)`: 輸出 `if-goto labelName`
+* `writeCall(name, nArgs)`: 輸出 `call name nArgs`
+* `writeFunction(name, nLocals)`: 輸出 `function name nLocals`
+* `writeReturn()`: 輸出 `return`
+* `close()`: 關閉輸出檔案
+
+---
+
+## 7. 字串處理 (String Constants)
+
+Jack 語言中的字串常數（例如 `"Hello"`）在編譯時需要轉換為一連串的物件操作指令。
+
+**處理邏輯**:
+1.  **計算長度**: 取得字串長度 (例如 "Hello" 長度為 5)。
+2.  **建立物件**: 呼叫 OS 的 `String.new(length)`。
+3.  **逐字附加**: 利用迴圈或展開，將每個字元的 ASCII 碼透過 `String.appendChar(c)` 加入。
+4.  **結果**: 最後堆疊頂端會留有該 String 物件的參照 (Reference)。
+
+**VM Code 範例 ("Hi")**:
+```vm
+push constant 2           // 長度
+call String.new 1         // 建立 String 物件, 回傳參照在 stack 頂端
+push constant 72          // 'H'
+call String.appendChar 2  // appendChar(this, char)
+push constant 105         // 'i'
+call String.appendChar 2
+// 此時 stack 頂端是 "Hi" 的物件指標
+```
+# 第12章
+## 1. 核心概念 (Overview)
+這一章的目標是實作 Hack 電腦的 **System Software**。在前幾章我們在編譯器中假定 OS 已經存在 (例如呼叫 `Math.multiply`, `Memory.alloc`)，現在我們要親手實作這 8 個核心類別。
+
+* **挑戰**: Hack 硬體非常簡陋 (沒有乘法器、沒有浮點數、沒有 MMU)。
+* **目標**: 使用 Jack 語言實作高效的數學運算、圖形繪製與記憶體管理。
+* **Class List**: `Math`, `String`, `Array`, `Output`, `Screen`, `Keyboard`, `Memory`, `Sys`.
+
+---
+
+## 2. 數學運算 (Math Class)
+Hack ALU 只能做加減法，因此進階運算必須用軟體實作。為了效能，**位元運算 (Bitwise Operation)** 是關鍵。
+
+### A. 乘法 (Multiplication)
+* **暴力法**: `x * y` 用迴圈加 `y` 次，時間複雜度 $O(N)$。 (太慢)
+* **優化法**: **Shift-and-Add (移位加法)**。
+    * 檢查 `y` 的第 `i` 個位元 (bit)。
+    * 如果是 1，則將 `x` 左移 `i` 位後加入總和。
+    * 時間複雜度: $O(\log N)$ (Hack 是 16-bit，所以固定跑 16 次迴圈)。
+
+
+
+### B. 除法 (Division)
+* **算法**: 長除法 (Long Division) 的遞迴實作。
+* **邏輯**:
+    * `divide(x, y)`:
+    * 如果 `y > x`，回傳 0。
+    * `q = divide(x, 2 * y)`
+    * 判斷 `x - 2 * q * y` 是否大於等於 `y`，決定餘數處理。
+
+### C. 開根號 (Sqrt)
+* **算法**: 二分搜尋法 (Binary Search) 的變形，或是逐位元決定法。
+* **邏輯**: 尋找 $y$ 使得 $y^2 \le x < (y+1)^2$。
+    * 從高位元開始試 (Hack 最大整數 $2^{15}-1$，所以根號最大約 181，從 $2^7$ 開始試即可)。
+
+---
+
+## 3. 記憶體管理 (Memory Class)
+這是本章最核心、最底層的部分。需要管理 **Heap (堆積)** 記憶體。
+
+### A. 記憶體存取 (Peek & Poke)
+Jack 語言沒有指標 (Pointer)，如何直接讀寫 RAM？
+* **Trick**: 利用 `Array` 的特性。
+* **實作**:
+    ```jack
+    static Array ram;
+    function void init() {
+        let ram = 0; // 讓 ram 陣列的 base address 指向 0
+    }
+    function int peek(int address) {
+        return ram[address];
+    }
+    ```
+
+### B. 動態分配 (Alloc & DeAlloc)
+管理 `heapBase` (2048) 到 16383 之間的記憶體。採用 **Free List (空閒列表)** 演算法。
+
+* **資料結構**: Linked List。每個區塊包含 `length` (大小) 和 `next` (指向下一個空閒區塊的指標)。
+* **alloc(size)**:
+    1.  遍歷 Free List (使用 **First-fit** 或 **Best-fit** 策略)。
+    2.  找到夠大的區塊 (`block.size >= size + 2`)。
+    3.  將區塊切割：一部分給用戶，剩餘部分留在 Free List。
+    4.  回傳用戶部分的地址。
+* **deAlloc(object)**:
+    1.  將該物件佔用的區塊插回 Free List 的頭部或尾部。
+    2.  (進階) 合併相鄰的空閒區塊 (Defragmentation)。
+
+
+
+---
+
+## 4. 圖形繪製 (Screen Class)
+直接操作 RAM[16384] 開始的 Screen Memory Map。
+
+### A. 繪製像素 (Draw Pixel)
+* 螢幕是 512x256，每個 Word (16-bit) 控制 16 個橫向像素。
+* **地址計算**: `address = 16384 + (y * 32) + (x / 16)`。
+* **位元操作**:
+    * 讀取當前數值 `value = Memory.peek(address)`。
+    * 計算第 `x % 16` 個位元。
+    * 使用 `value | bit` (畫黑) 或 `value & ~bit` (畫白) 修改。
+    * `Memory.poke(address, newValue)`。
+
+### B. 繪製線條 (Draw Line)
+* **算法**: **Bresenham's Line Algorithm**。
+* **特點**: 全程只使用整數加減法，不使用浮點數或乘除法，效率極高。
+* **原理**: 隨時記錄累積誤差 `diff`，決定下一個點是「往右」還是「往右上方」移動。
+
+
+
+---
+
+## 5. 字串與輸出 (String & Output)
+
+### String
+* **整數轉字串 (setInt)**: 取餘數 (`val % 10`) 取得最後一位數字，轉成字元，然後遞迴處理剩下的部分。
+* **字串轉整數 (getInt)**: 累加器模式 (`v = v * 10 + d`)。
+
+### Output
+* **字型 (Font)**: 每個字元由 11 行像素組成 (Array of 11 integers)。OS 中通常硬編碼了一個字型圖 (Font Map)。
+* **printChar**: 根據游標位置，將字型圖案 `poke` 到 Screen RAM 中。
+
+---
+
+## 6. 系統啟動 (Sys Class)
+這是作業系統的進入點。
+
+* **init()**:
+    * 依序呼叫所有 OS 類別的 `init()` (Memory, Math, Screen, Output, Keyboard...)。
+    * 最後呼叫 `Main.main()` 進入使用者程式。
+    * 程式結束後呼叫 `Sys.halt()`。
+* **wait(duration)**:
+    * 由於 Hack 沒有硬體時鐘中斷，通常使用迴圈空轉來模擬延遲。
+    * 需要根據 CPU 時脈調整迴圈次數 (例如 `1ms` 大約跑幾次迴圈)。
+
+---
+
+## 7. 實作建議 (Tips)
+
+1.  **實作順序**:
+    * `Memory` (其他人都依賴它)。
+    * `Math` (基本運算)。
+    * `Array`, `String`.
+    * `Screen`, `Output`.
+    * `Sys`.
+2.  **效率至上**:
+    * 在 `Math.multiply` 和 `Screen.drawLine` 中，盡量避免不必要的運算。
+    * Hack 模擬器跑圖形運算很慢，Bresenham 演算法的正確實作對效能影響巨大。
+3.  **防止溢位**:
+    * 在 `Math.multiply` 中，判斷 `sum + shiftedX` 是否溢位是個細節。
+4.  **Memory Leak**:
+    * 這是 OS 作者的責任。確保 `alloc` 切割區塊時，Header 資訊 (size) 正確保留，否則 `deAlloc` 會出錯。
