@@ -567,3 +567,182 @@ while (nextToken is op): # 檢查是否為 + - * / & | < > =
     advance()            # 消耗運算子
     compileTerm()        # 處理下一個項 (例如: b)
 ```
+### 4. 終端與非終端符號的處理 (Terminal vs. Non-terminal Handling)
+
+在實作遞迴下降解析器 (Recursive Descent Parser) 時，區分這兩者對於正確生成 XML 結構至關重要。
+
+#### **A. 終端符號 (Terminal Symbols)**
+* **定義**: 這是遞迴的**終點**，也就是語法樹 (Parse Tree) 的葉節點 (Leaf Nodes)。
+* **內容**: 來自 Tokenizer 的基本單元。
+* **範例**: 關鍵字 (`class`, `while`)、符號 (`{`, `;`)、整數常數 (`123`)、字串常數、識別字 (`varName`)。
+* **處理方式**: 直接寫入 XML 標籤中，**不需要**再呼叫其他 `compile` 方法。
+    ```xml
+    <keyword> class </keyword>
+    <symbol> { </symbol>
+    ```
+
+#### **B. 非終端符號 (Non-terminal Symbols)**
+* **定義**: 這是遞迴的**過程**，由多個終端符號或其他非終端符號組成的高階結構。
+* **內容**: 文法規則中定義的結構 (Grammar Rules)。
+* **範例**: `class`, `subroutineDec`, `expression`, `ifStatement`。
+* **處理方式**: 需要用 XML 標籤將遞迴過程「包裹」起來。
+* **邏輯流程 (以 `expression` 為例)**:
+    1.  先寫入開始標籤 `<expression>`。
+    2.  呼叫 `compileExpression()` (這會在內部遞迴處理更多的 `term` 和 `op`)。
+    3.  從函式返回後，寫入結束標籤 `</expression>`。
+
+
+
+#### **C. 實作範例 (Pseudo-code)**
+
+```python
+def compileWhile(self):
+    # 1. 寫入非終端標籤 (開始)
+    self.write("<whileStatement>")
+
+    # 2. 處理內部結構 (混合終端與非終端)
+    self.write("<keyword> while </keyword>")  # 終端
+    self.write("<symbol> ( </symbol>")        # 終端
+
+    self.compileExpression()                  # 非終端 (遞迴)
+
+    self.write("<symbol> ) </symbol>")        # 終端
+    self.write("<symbol> { </symbol>")        # 終端
+
+    self.compileStatements()                  # 非終端 (遞迴)
+
+    self.write("<symbol> } </symbol>")        # 終端
+
+    # 3. 寫入非終端標籤 (結束)
+    self.write("</whileStatement>")
+```
+# 第11章
+## 1. 核心概念 (Overview)
+這是編譯器的後端 (Back-end)。我們不再輸出 XML，而是使用 `VMWriter` 輸出 `.vm` 指令。
+* **目標**: 將 Jack 語言的高階邏輯翻譯成堆疊機 (Stack Machine) 的操作。
+* **核心挑戰**:
+    1.  **資料對應**: 如何將變數對應到 VM 的記憶體區段 (local, argument, this, static)。
+    2.  **表達式計算**: 將中綴表示法 (Infix) `x + y` 轉為後綴堆疊操作。
+    3.  **物件操作**: 處理 `this` 指標、建構子記憶體分配、方法呼叫。
+    4.  **流程控制**: 自動生成 Label 以處理 `if` 和 `while`。
+
+---
+
+## 2. 符號表 (Symbol Table)
+為了將變數名稱 (如 `salary`, `i`, `p`) 轉換為 VM 指令 (如 `pop local 2`)，我們需要一個符號表來追蹤所有變數。
+
+
+
+### 作用域 (Scopes)
+我們需要兩個 Hash Map (或類似結構)：
+1.  **Class-Level (類別級)**: 記錄 `static` 和 `field` 變數。
+2.  **Subroutine-Level (函式級)**: 記錄 `argument` 和 `var` (local) 變數。每次編譯新的 subroutine 時需清空並重置。
+
+### 記錄內容 (Properties)
+對於每個變數，我們需要記錄：
+* **Name**: 識別字 (如 `x`)。
+* **Type**: 資料型別 (如 `int`, `boolean`, `Point`)。
+* **Kind**: 變數種類 (決定對應的 VM segment)。
+* **Index**: 該種類中的序號 (從 0 開始)。
+
+| Variable Kind | VM Segment | 備註 |
+| :--- | :--- | :--- |
+| **field** | `this` | 物件的成員變數 |
+| **static** | `static` | 類別共用變數 |
+| **var** | `local` | 區域變數 |
+| **argument** | `argument` | 函式參數 |
+
+---
+
+## 3. 變數與表達式編譯 (Variables & Expressions)
+
+### 變數的使用
+當 Parser 遇到一個識別字 (Identifier) 時，先查 **Subroutine-Level** 表，如果找不到，再查 **Class-Level** 表。
+* **Push (讀取)**: `int x = i;` -> `push local 0` (假設 i 是第 0 個 var)。
+* **Pop (寫入)**: `let salary = 5000;` -> `push constant 5000`, `pop this 2` (假設 salary 是第 2 個 field)。
+
+
+
+### 表達式運算
+Jack 的 `term op term` 結構天然適合遞迴編譯成堆疊指令。
+* **Jack**: `x + y`
+* **Logic**: `compileExpression(x)` -> `compileExpression(y)` -> `writeOp(+)`
+* **VM**:
+    ```vm
+    push local 0  // x
+    push local 1  // y
+    add
+    ```
+
+---
+
+## 4. 物件導向處理 (Handling Objects)
+
+這是本章最複雜的部分，需要精確操作記憶體。
+
+
+
+### A. 建構子 (Constructors)
+* **任務**: 為新物件分配記憶體，並回傳 `this`。
+* **編譯邏輯**:
+    1.  計算 `field` 變數的數量 (查 Symbol Table)。
+    2.  呼叫 `Memory.alloc(size)`。
+    3.  將回傳的 Base Address 設定給 `pointer 0` (也就是 `THIS`)。
+    4.  最後必須 `push pointer 0` 並 `return`，將物件參照傳回給呼叫者。
+* **VM Code**:
+    ```vm
+    push constant 2    // 假設有 2 個 fields
+    call Memory.alloc 1
+    pop pointer 0      // 設定 THIS = address
+    ... (初始化欄位) ...
+    push pointer 0     // 回傳 this
+    return
+    ```
+
+### B. 方法 (Methods) vs 函式 (Functions)
+* **Function**: 靜態呼叫，無隱藏參數。
+* **Method**: 物件呼叫，**第一個參數 (Argument 0) 永遠是 `this`**。
+* **編譯 Method 定義**:
+    * 進入 method 後的第一件事，是將 `argument 0` (Caller 傳入的物件地址) 設定給 `THIS` 指標。
+    * **VM Code**:
+        ```vm
+        push argument 0
+        pop pointer 0    // 設定 THIS segment 對齊當前物件
+        ```
+* **編譯 Method 呼叫 (`obj.foo(x)`)**:
+    * 必須先 Push `obj` 的參照 (Reference) 到堆疊上。
+    * 然後 Push `x`。
+    * 最後 `call Class.foo 2` (參數個數是 1+1)。
+
+### C. 陣列 (Arrays)
+陣列存取 `a[i] = y` 需要操作 `THAT` 指標 (`pointer 1`)。
+* **邏輯**:
+    1.  Push 陣列基底地址 `a`。
+    2.  Push 索引 `i`。
+    3.  `add` (計算出 `a + i` 的目標地址)。
+    4.  **注意**: 這裡不能直接 Pop，因為我們要先算等號右邊的 `y`。通常使用 `temp` 暫存或是特殊的堆疊順序。
+    5.  標準做法:
+        * 算好地址 `a+i`。
+        * Pop 到 `pointer 1` (現在 `THAT` 指向 `a[i]`)。
+        * Push `y`。
+        * `pop that 0`。
+
+---
+
+## 5. 流程控制 (Flow Control)
+
+`if` 和 `while` 需要生成唯一的 Label 來控制跳轉。
+
+### If Statement
+**Jack**: `if (cond) { s1 } else { s2 }`
+**VM Logic**:
+```vm
+    // compile condition (cond)
+    not
+    if-goto L1
+    // compile s1
+    goto L2
+label L1
+    // compile s2 (if exists)
+label L2
+```
