@@ -74,6 +74,7 @@ AM=M-1  // SP--, A=SP (指向 y)
 D=M     // D = y
 A=A-1   // A 指向 x (注意 SP 已經減了，這裡直接看前一個位置即可)
 M=D+M   // x = x + y (直接覆蓋 x 的位置，SP 停在這裡剛好)
+```
 ## 邏輯運算實作細節 (Arithmetic & Logic Implementation)
 
 ### 一元運算 (neg, not)
