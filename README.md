@@ -340,4 +340,7 @@ Reset 按鈕:
 Computer 晶片有一個 reset 輸入，直接連到 CPU 的 reset 腳位。當按下時，PC 歸零，程式重頭開始  
 ## 總結  
 * Memory: 最簡單，練習操作地址位元 (Bit manipulation)  
-* CPU: 最難，建議先把那張 Hack CPU 的架構圖印出來，用筆畫出 A
+* CPU: 最難，建議先把那張 Hack CPU 的架構圖印出來，用筆畫出 A-指令和 C-指令時數據該怎麼流動  
+* Computer: 最快，只要正確連接上面兩個晶片與 ROM 即可  
+[作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E4%B8%AD/5)
+[AI](https://gemini.google.com/share/d22f4a1e0077)
