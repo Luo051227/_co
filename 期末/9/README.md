@@ -1,1 +1,1 @@
-`參考`[_nand2tetris/09](https://github.com/ccc114a/cpu2os/tree/master/_nand2tetris/09)
+`全部複製沒修改`[_nand2tetris/09](https://github.com/ccc114a/cpu2os/tree/master/_nand2tetris/09)
