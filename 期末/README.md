@@ -62,6 +62,7 @@ Hack 語言支援三種符號，組譯器需透過**符號表 (Symbol Table)** �
 - `Main`: 控制讀檔、兩次掃描流程及檔案輸出。
 
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E6%9C%AB/6)
+`都是使用Nand2Tetris 提供的軟體包（Software Package）中開啟檔案`
 # 第7章
 
 ## 1. 核心概念 (Overview)
@@ -198,6 +199,7 @@ M=D+M   // x = x + y (直接覆蓋 x 的位置，SP 停在這裡剛好)
     * 若輸入檔名為 `Xxx.vm`，指令 `static 5` 應翻譯為組合語言的符號 **`@X
 
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E6%9C%AB/7)
+`全部複製沒修改`[_nand2tetris/07](https://github.com/ccc114a/cpu2os/tree/master/_nand2tetris/07)
 # 第8章
 
 ## 1. 核心概念 (Overview)
@@ -322,6 +324,7 @@ VM Translator 產生的 `.asm` 檔必須包含一段初始化的程式碼，這�
 
 
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E6%9C%AB/8)
+`全部複製沒修改`[_nand2tetris/08/](https://github.com/ccc114a/cpu2os/tree/master/_nand2tetris/08)
 # 第9章
 
 ## 1. 核心概念 (Overview)
@@ -452,6 +455,7 @@ Hack 平台提供了一組類似作業系統 (OS) 的 API 供我們使用。在�
 
 
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E6%9C%AB/9)
+`全部複製沒修改`[_nand2tetris/09](https://github.com/ccc114a/cpu2os/tree/master/_nand2tetris/09)
 # 第10章
 
 ## 1. 核心概念 (Overview)
@@ -625,8 +629,6 @@ def compileWhile(self):
     self.write("</whileStatement>")
 ```
 
-
-[作業]()
 # 第11章
 ## 1. 核心概念 (Overview)
 這是編譯器的後端 (Back-end)。我們不再輸出 XML，而是使用 `VMWriter` 輸出 `.vm` 指令。
@@ -817,6 +819,7 @@ call String.appendChar 2
 
 
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E6%9C%AB/11)
+`全部複製沒修改`[_nand2tetris/11](https://github.com/ccc114a/cpu2os/tree/master/_nand2tetris/11)
 # 第12章
 ## 1. 核心概念 (Overview)
 這一章的目標是實作 Hack 電腦的 **System Software**。在前幾章我們在編譯器中假定 OS 已經存在 (例如呼叫 `Math.multiply`, `Memory.alloc`)，現在我們要親手實作這 8 個核心類別。
@@ -952,3 +955,4 @@ Jack 語言沒有指標 (Pointer)，如何直接讀寫 RAM？
 
 
 [作業](https://github.com/Luo051227/_co/tree/main/%E6%9C%9F%E6%9C%AB/12)
+`全部複製沒修改`[_nand2tetris/12](https://github.com/ccc114a/cpu2os/tree/master/_nand2tetris/12)
