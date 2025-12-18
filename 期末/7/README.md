@@ -1,4 +1,4 @@
-`參考`[_nand2tetris/07](https://github.com/ccc114a/cpu2os/tree/master/_nand2tetris/07)  
+`全部複製沒修改`[_nand2tetris/07](https://github.com/ccc114a/cpu2os/tree/master/_nand2tetris/07)  
 # Nand2Tetris Chapter 7: Virtual Machine I - Stack Arithmetic
 
 ## 1. 核心概念 (Overview)
